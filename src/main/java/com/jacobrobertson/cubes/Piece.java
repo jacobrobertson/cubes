@@ -1,4 +1,4 @@
-package cubes;
+package com.jacobrobertson.cubes;
 
 public class Piece {
 
