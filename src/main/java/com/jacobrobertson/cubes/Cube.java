@@ -30,10 +30,18 @@ public class Cube {
 	}
 	public Cube rotate(Face face, boolean clockWise) {
 		switch (face) {
+		case Back:
+			return rotateBack(clockWise);
 		case Front:
 			return rotateFront(clockWise);
 		case Right:
 			return rotateRight(clockWise);
+		case Left:
+			return rotateLeft(clockWise);
+		case Top:
+			return rotateTop(clockWise);
+		case Under:
+			return rotateUnder(clockWise);
 		default:
 		}
 		throw new UnsupportedOperationException();
@@ -65,6 +73,22 @@ public class Cube {
 		
 		return r;
 	}
+	private Cube rotateBack(boolean clockWise) {
+		Cube r = clone();
+		
+		r.set(this, 0, 2, 0, 0, 2, 2, -1, 0, 0, clockWise);
+		r.set(this, 1, 2, 0, 0, 2, 1, -1, 0, 0, clockWise);
+		r.set(this, 2, 2, 0, 0, 2, 0, -1, 0, 0, clockWise);
+
+		r.set(this, 0, 2, 1, 1, 2, 2, -1, 0, 0, clockWise);
+		r.set(this, 2, 2, 1, 1, 2, 0, -1, 0, 0, clockWise);
+
+		r.set(this, 0, 2, 2, 2, 2, 2, -1, 0, 0, clockWise);
+		r.set(this, 1, 2, 2, 2, 2, 1, -1, 0, 0, clockWise);
+		r.set(this, 2, 2, 2, 2, 2, 0, -1, 0, 0, clockWise);
+		
+		return r;
+	}
 	private Cube rotateRight(boolean clockWise) {
 		Cube r = clone();
 		
@@ -78,6 +102,54 @@ public class Cube {
 		r.set(this, 2, 2, 0, 2, 2, 2, 0, 1, 0, clockWise);
 		r.set(this, 2, 2, 1, 2, 1, 2, 0, 1, 0, clockWise);
 		r.set(this, 2, 2, 2, 2, 0, 2, 0, 1, 0, clockWise);
+		
+		return r;
+	}
+	private Cube rotateLeft(boolean clockWise) {
+		Cube r = clone();
+		
+		r.set(this, 0, 0, 0, 0, 0, 2, 0, -1, 0, clockWise);
+		r.set(this, 0, 1, 0, 0, 0, 1, 0, -1, 0, clockWise);
+		r.set(this, 0, 2, 0, 0, 0, 0, 0, -1, 0, clockWise);
+
+		r.set(this, 0, 0, 1, 0, 1, 2, 0, -1, 0, clockWise);
+		r.set(this, 0, 2, 1, 0, 1, 0, 0, -1, 0, clockWise);
+
+		r.set(this, 0, 0, 2, 0, 2, 2, 0, -1, 0, clockWise);
+		r.set(this, 0, 1, 2, 0, 2, 1, 0, -1, 0, clockWise);
+		r.set(this, 0, 2, 2, 0, 2, 0, 0, -1, 0, clockWise);
+		
+		return r;
+	}
+	private Cube rotateTop(boolean clockWise) {
+		Cube r = clone();
+		
+		r.set(this, 0, 0, 0, 0, 2, 0, 0, 0, 1, clockWise);
+		r.set(this, 0, 1, 0, 1, 2, 0, 0, 0, 1, clockWise);
+		r.set(this, 0, 2, 0, 2, 2, 0, 0, 0, 1, clockWise);
+
+		r.set(this, 1, 0, 0, 0, 1, 0, 0, 0, 1, clockWise);
+		r.set(this, 1, 2, 0, 2, 1, 0, 0, 0, 1, clockWise);
+
+		r.set(this, 2, 0, 0, 0, 0, 0, 0, 0, 1, clockWise);
+		r.set(this, 2, 1, 0, 1, 0, 0, 0, 0, 1, clockWise);
+		r.set(this, 2, 2, 0, 2, 0, 0, 0, 0, 1, clockWise);
+		
+		return r;
+	}
+	private Cube rotateUnder(boolean clockWise) {
+		Cube r = clone();
+		
+		r.set(this, 0, 0, 2, 2, 0, 2, 0, 0, -1, clockWise);
+		r.set(this, 1, 0, 2, 2, 1, 2, 0, 0, -1, clockWise);
+		r.set(this, 2, 0, 2, 2, 2, 2, 0, 0, -1, clockWise);
+
+		r.set(this, 0, 1, 2, 1, 0, 2, 0, 0, -1, clockWise);
+		r.set(this, 2, 1, 2, 1, 2, 2, 0, 0, -1, clockWise);
+
+		r.set(this, 0, 2, 2, 0, 0, 2, 0, 0, -1, clockWise);
+		r.set(this, 1, 2, 2, 0, 1, 2, 0, 0, -1, clockWise);
+		r.set(this, 2, 2, 2, 0, 2, 2, 0, 0, -1, clockWise);
 		
 		return r;
 	}
