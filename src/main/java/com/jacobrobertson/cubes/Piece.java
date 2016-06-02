@@ -128,10 +128,6 @@ public class Piece {
 		int colorKey = getColorKey(colors);
 		return flyweight.get(colorKey);
 	}
-	public static Piece any() {
-		Integer key = flyweight.keySet().iterator().next();
-		return flyweight.get(key);
-	}
 	private static int getRotationKey(int x, int y, int z) {
 		return
 			1000000 * x + 
@@ -210,7 +206,31 @@ public class Piece {
 	public int getZRotations() {
 		return zRotations;
 	}
+	
+	public Color getColor(Face face) {
+		switch (face) {
+		case Back:
+			return getBack();
+		case Top:
+			return getTop();
+		case Front:
+			return getFront();
+		case Under:
+			return getUnder();
+		case Left:
+			return getLeft();
+		case Right:
+			return getRight();
+		}
+		throw new IllegalArgumentException();
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		Piece that = (Piece) obj;
+		return this.rotationKey.equals(that.rotationKey);
+	}
+	
 	@Override
 	public String toString() {
 		return "Piece [top=" + top + ", left=" + left + ", front=" + front
