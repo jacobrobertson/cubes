@@ -22,13 +22,17 @@ public class Piece {
 	private static void init(Color top, Color left, Color front, Color right, Color back, Color under) {
 		Piece ideal = init(top, left, front, right, back, under, null, 0, 0, 0);
 		Piece px = ideal;
-		for (int x = 1; x < 4; x++) {
-			//           top,     left,     front,    right,  back,    under
-			px = init(px.left, px.under, px.front, px.top, px.back, px.right, ideal, x, 0, 0);
+		for (int x = 0; x < 4; x++) {
+			if (x > 0) {
+				//           top,     left,     front,    right,  back,    under
+				px = init(px.left, px.under, px.front, px.top, px.back, px.right, ideal, x, 0, 0);
+			}
 			Piece py = px;
-			for (int y = 1; y < 4; y++) {
-				//           top,      left,    front,    right,    back,   under
-				py = init(py.front, py.left, py.under, py.right, py.top, py.back, ideal, py.xRotations, y, 0);
+			for (int y = 0; y < 4; y++) {
+				if (y > 0) {
+					//           top,      left,    front,    right,    back,   under
+					py = init(py.front, py.left, py.under, py.right, py.top, py.back, ideal, py.xRotations, y, 0);
+				}
 				Piece pz = py;
 				for (int z = 1; z < 4; z++) {
 					//           top,    left,     front,    right,   back,    under
@@ -123,6 +127,12 @@ public class Piece {
 	 */
 	public static Piece piece(String parseKey) {
 		Color[] colors = Color.parseColors(parseKey);
+		return doPiece(colors);
+	}
+	public static Piece piece(Color top, Color left, Color front, Color right, Color back, Color under) {
+		return doPiece(top, left, front, right, back, under);
+	}
+	private static Piece doPiece(Color... colors) {
 		int colorKey = buildColorKey(true, colors);
 		return canonicalByRotatedColorKeyPart.get(colorKey);
 	}
@@ -156,6 +166,7 @@ public class Piece {
 	/**
 	 * Only one arg can be non-zero and only valid values are -1, 0, 1
 	 */
+	/*
 	public Piece rotate(int x, int y, int z) {
 		int rotationKey = buildRotationKey(
 				incr(x, xRotations), 
@@ -169,6 +180,28 @@ public class Piece {
 		Piece canonical = canonicalByRotatedColorKeyPart.get(rotated.rotatedColorKey);
 		return canonical;
 	}
+	*/
+	public Piece rotate(Face face, boolean clockwise) {
+		// TODO this is only for clockwise
+		switch (face) {
+		//                 top, left, front, right, back, under
+		case Back:
+			return doPiece(right, top, front, under, back, left);
+		case Front:
+			return doPiece(left, under, front, right, back, right);
+		case Right:
+			return doPiece(front, left, under, right, top, back);
+		case Left:
+			return doPiece(back, left, top, right, under, front);
+		case Top:
+			return doPiece(top, front, right, back, left, under);
+		case Under:
+			return doPiece();
+		default:
+			throw new UnsupportedOperationException();
+		}
+	}
+	/*
 	private int incr(int n, int e) {
 		n = n + e;
 		if (n == -1) {
@@ -178,6 +211,7 @@ public class Piece {
 		}
 		return n;
 	}
+	*/
 	
 	public Color getTop() {
 		return top;
