@@ -113,9 +113,6 @@ public class Piece {
 			this.idealPiece = this;
 		}
 	}
-	/**
-	 * DO NOT ALTER.
-	 */
 	public static Iterable<Piece> pieces() {
 		return flyweight.values();
 	}
@@ -130,21 +127,28 @@ public class Piece {
 	}
 	private static int getRotationKey(int x, int y, int z) {
 		return
-			1000000 * x + 
-			10000000 * y + 
-			100000000 * z;
+			1000 * x + 
+			10000 * y + 
+			100000 * z;
 	}
 	private int getColorKey() {
 		return getColorKey(top, left, front, right, back, under);
 	}
-	private static int getColorKey(Color... colors) {
-		return 
-			1 * colors[0].ordinal() + 
-			10 * colors[1].ordinal() + 
-			100 * colors[2].ordinal() + 
-			1000 * colors[3].ordinal() + 
-			10000 * colors[4].ordinal() + 
-			100000 * colors[5].ordinal(); 
+	private static int getColorKey(Color... c) {
+		int key = 0;
+		int pos = 0;
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == Color.Blank) {
+				continue;
+			}
+			key += getColorKeyPart(c[i], pos);
+			pos++;
+		}
+		return key;
+	}
+	private static int getColorKeyPart(Color c, int pos) {
+		int factor = (int) Math.pow(7, pos);
+		return factor * c.ordinal();
 	}
 
 	/**
@@ -237,6 +241,10 @@ public class Piece {
 				+ ", right=" + right + ", back=" + back + ", under=" + under
 				+ ", xRotations=" + xRotations + ", yRotations=" + yRotations
 				+ ", zRotations=" + zRotations + "]";
+	}
+	
+	public int getKey() {
+		return colorKey;
 	}
 	
 	

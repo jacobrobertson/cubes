@@ -5,6 +5,12 @@ import static com.jacobrobertson.cubes.Face.*;
 
 public class CubeTest extends TestCase {
 
+	public void testKeyString() {
+		Cube c = Cube.DEFAULT;
+		assertNotNull(c.getKeyString());
+		Cube r = c.rotate(Front, true);
+		assertFalse(c.getKeyString().equals(r.getKeyString()));
+	}
 	public void testInit() {
 		Cube c = Cube.DEFAULT;
 		assertNotNull(c.getPiece(0, 0, 0));

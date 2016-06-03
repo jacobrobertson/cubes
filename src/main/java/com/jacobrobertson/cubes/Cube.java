@@ -7,6 +7,7 @@ public class Cube {
 	public static final Cube DEFAULT = getDefaultCube();
 	
 	private Piece[][][] pieces = new Piece[3][3][3];
+	private String keyString;
 
 	/**
 	 * Creates the default Cube.
@@ -23,28 +24,53 @@ public class Cube {
 			}
 			cube.pieces[spec.x][spec.y][spec.z] = piece;
 		}
+		cube.initKeyString();
 		return cube;
+	}
+	private void initKeyString() {
+		StringBuilder buf = new StringBuilder();
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				for (int z = 0; z < 3; z++) {
+					Piece p = pieces[x][y][z];
+					if (p != null) {
+						char c = (char) p.getKey();
+						buf.append(c);
+					}
+				}
+			}
+		}
+		this.keyString = buf.toString();
 	}
 	public Piece getPiece(int x, int y, int z) {
 		return pieces[x][y][z];
 	}
 	public Cube rotate(Face face, boolean clockWise) {
+		Cube r;
 		switch (face) {
 		case Back:
-			return rotateBack(clockWise);
+			r = rotateBack(clockWise);
+			break;
 		case Front:
-			return rotateFront(clockWise);
+			r = rotateFront(clockWise);
+			break;
 		case Right:
-			return rotateRight(clockWise);
+			r = rotateRight(clockWise);
+			break;
 		case Left:
-			return rotateLeft(clockWise);
+			r = rotateLeft(clockWise);
+			break;
 		case Top:
-			return rotateTop(clockWise);
+			r = rotateTop(clockWise);
+			break;
 		case Under:
-			return rotateUnder(clockWise);
+			r = rotateUnder(clockWise);
+			break;
 		default:
+			throw new UnsupportedOperationException();
 		}
-		throw new UnsupportedOperationException();
+		r.initKeyString();
+		return r;
 	}
 	public Cube clone() {
 		Cube c = new Cube();
@@ -55,6 +81,7 @@ public class Cube {
 				}
 			}
 		}
+		c.keyString = keyString;
 		return c;
 	}
 	private Cube rotateFront(boolean clockWise) {
@@ -280,6 +307,10 @@ public class Cube {
 			}
 		}
 		return true;
+	}
+	
+	public String getKeyString() {
+		return keyString;
 	}
 	
 }
