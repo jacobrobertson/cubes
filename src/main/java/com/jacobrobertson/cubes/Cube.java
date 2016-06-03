@@ -2,6 +2,8 @@ package com.jacobrobertson.cubes;
 
 import static com.jacobrobertson.cubes.Face.*;
 
+import java.util.Random;
+
 public class Cube {
 
 	public static final Cube DEFAULT = getDefaultCube();
@@ -34,7 +36,7 @@ public class Cube {
 				for (int z = 0; z < 3; z++) {
 					Piece p = pieces[x][y][z];
 					if (p != null) {
-						char c = (char) p.getKey();
+						char c = (char) p.getIdealColorKey();
 						buf.append(c);
 					}
 				}
@@ -45,26 +47,26 @@ public class Cube {
 	public Piece getPiece(int x, int y, int z) {
 		return pieces[x][y][z];
 	}
-	public Cube rotate(Face face, boolean clockWise) {
+	public Cube rotate(Face face, boolean clockwise) {
 		Cube r;
 		switch (face) {
 		case Back:
-			r = rotateBack(clockWise);
+			r = rotateBack(clockwise);
 			break;
 		case Front:
-			r = rotateFront(clockWise);
+			r = rotateFront(clockwise);
 			break;
 		case Right:
-			r = rotateRight(clockWise);
+			r = rotateRight(clockwise);
 			break;
 		case Left:
-			r = rotateLeft(clockWise);
+			r = rotateLeft(clockwise);
 			break;
 		case Top:
-			r = rotateTop(clockWise);
+			r = rotateTop(clockwise);
 			break;
 		case Under:
-			r = rotateUnder(clockWise);
+			r = rotateUnder(clockwise);
 			break;
 		default:
 			throw new UnsupportedOperationException();
@@ -84,111 +86,111 @@ public class Cube {
 		c.keyString = keyString;
 		return c;
 	}
-	private Cube rotateFront(boolean clockWise) {
+	private Cube rotateFront(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 0, 0, 0, 2, 0, 0, 1, 0, 0, clockWise);
-		r.set(this, 1, 0, 0, 2, 0, 1, 1, 0, 0, clockWise);
-		r.set(this, 2, 0, 0, 2, 0, 2, 1, 0, 0, clockWise);
+		r.set(this, 0, 0, 0, 2, 0, 0, 1, 0, 0, clockwise);
+		r.set(this, 1, 0, 0, 2, 0, 1, 1, 0, 0, clockwise);
+		r.set(this, 2, 0, 0, 2, 0, 2, 1, 0, 0, clockwise);
 
-		r.set(this, 0, 0, 1, 1, 0, 0, 1, 0, 0, clockWise);
-		r.set(this, 2, 0, 1, 1, 0, 2, 1, 0, 0, clockWise);
+		r.set(this, 0, 0, 1, 1, 0, 0, 1, 0, 0, clockwise);
+		r.set(this, 2, 0, 1, 1, 0, 2, 1, 0, 0, clockwise);
 
-		r.set(this, 0, 0, 2, 0, 0, 0, 1, 0, 0, clockWise);
-		r.set(this, 1, 0, 2, 0, 0, 1, 1, 0, 0, clockWise);
-		r.set(this, 2, 0, 2, 0, 0, 2, 1, 0, 0, clockWise);
+		r.set(this, 0, 0, 2, 0, 0, 0, 1, 0, 0, clockwise);
+		r.set(this, 1, 0, 2, 0, 0, 1, 1, 0, 0, clockwise);
+		r.set(this, 2, 0, 2, 0, 0, 2, 1, 0, 0, clockwise);
 		
 		return r;
 	}
-	private Cube rotateBack(boolean clockWise) {
+	private Cube rotateBack(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 0, 2, 0, 0, 2, 2, -1, 0, 0, clockWise);
-		r.set(this, 1, 2, 0, 0, 2, 1, -1, 0, 0, clockWise);
-		r.set(this, 2, 2, 0, 0, 2, 0, -1, 0, 0, clockWise);
+		r.set(this, 0, 2, 0, 0, 2, 2, -1, 0, 0, clockwise);
+		r.set(this, 1, 2, 0, 0, 2, 1, -1, 0, 0, clockwise);
+		r.set(this, 2, 2, 0, 0, 2, 0, -1, 0, 0, clockwise);
 
-		r.set(this, 0, 2, 1, 1, 2, 2, -1, 0, 0, clockWise);
-		r.set(this, 2, 2, 1, 1, 2, 0, -1, 0, 0, clockWise);
+		r.set(this, 0, 2, 1, 1, 2, 2, -1, 0, 0, clockwise);
+		r.set(this, 2, 2, 1, 1, 2, 0, -1, 0, 0, clockwise);
 
-		r.set(this, 0, 2, 2, 2, 2, 2, -1, 0, 0, clockWise);
-		r.set(this, 1, 2, 2, 2, 2, 1, -1, 0, 0, clockWise);
-		r.set(this, 2, 2, 2, 2, 2, 0, -1, 0, 0, clockWise);
+		r.set(this, 0, 2, 2, 2, 2, 2, -1, 0, 0, clockwise);
+		r.set(this, 1, 2, 2, 2, 2, 1, -1, 0, 0, clockwise);
+		r.set(this, 2, 2, 2, 2, 2, 0, -1, 0, 0, clockwise);
 		
 		return r;
 	}
-	private Cube rotateRight(boolean clockWise) {
+	private Cube rotateRight(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 2, 0, 0, 2, 2, 0, 0, 1, 0, clockWise);
-		r.set(this, 2, 0, 1, 2, 1, 0, 0, 1, 0, clockWise);
-		r.set(this, 2, 0, 2, 2, 0, 0, 0, 1, 0, clockWise);
+		r.set(this, 2, 0, 0, 2, 2, 0, 0, 1, 0, clockwise);
+		r.set(this, 2, 0, 1, 2, 1, 0, 0, 1, 0, clockwise);
+		r.set(this, 2, 0, 2, 2, 0, 0, 0, 1, 0, clockwise);
 
-		r.set(this, 2, 1, 0, 2, 2, 1, 0, 1, 0, clockWise);
-		r.set(this, 2, 1, 2, 2, 0, 1, 0, 1, 0, clockWise);
+		r.set(this, 2, 1, 0, 2, 2, 1, 0, 1, 0, clockwise);
+		r.set(this, 2, 1, 2, 2, 0, 1, 0, 1, 0, clockwise);
 
-		r.set(this, 2, 2, 0, 2, 2, 2, 0, 1, 0, clockWise);
-		r.set(this, 2, 2, 1, 2, 1, 2, 0, 1, 0, clockWise);
-		r.set(this, 2, 2, 2, 2, 0, 2, 0, 1, 0, clockWise);
+		r.set(this, 2, 2, 0, 2, 2, 2, 0, 1, 0, clockwise);
+		r.set(this, 2, 2, 1, 2, 1, 2, 0, 1, 0, clockwise);
+		r.set(this, 2, 2, 2, 2, 0, 2, 0, 1, 0, clockwise);
 		
 		return r;
 	}
-	private Cube rotateLeft(boolean clockWise) {
+	private Cube rotateLeft(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 0, 0, 0, 0, 0, 2, 0, -1, 0, clockWise);
-		r.set(this, 0, 1, 0, 0, 0, 1, 0, -1, 0, clockWise);
-		r.set(this, 0, 2, 0, 0, 0, 0, 0, -1, 0, clockWise);
+		r.set(this, 0, 0, 0, 0, 0, 2, 0, -1, 0, clockwise);
+		r.set(this, 0, 1, 0, 0, 0, 1, 0, -1, 0, clockwise);
+		r.set(this, 0, 2, 0, 0, 0, 0, 0, -1, 0, clockwise);
 
-		r.set(this, 0, 0, 1, 0, 1, 2, 0, -1, 0, clockWise);
-		r.set(this, 0, 2, 1, 0, 1, 0, 0, -1, 0, clockWise);
+		r.set(this, 0, 0, 1, 0, 1, 2, 0, -1, 0, clockwise);
+		r.set(this, 0, 2, 1, 0, 1, 0, 0, -1, 0, clockwise);
 
-		r.set(this, 0, 0, 2, 0, 2, 2, 0, -1, 0, clockWise);
-		r.set(this, 0, 1, 2, 0, 2, 1, 0, -1, 0, clockWise);
-		r.set(this, 0, 2, 2, 0, 2, 0, 0, -1, 0, clockWise);
+		r.set(this, 0, 0, 2, 0, 2, 2, 0, -1, 0, clockwise);
+		r.set(this, 0, 1, 2, 0, 2, 1, 0, -1, 0, clockwise);
+		r.set(this, 0, 2, 2, 0, 2, 0, 0, -1, 0, clockwise);
 		
 		return r;
 	}
-	private Cube rotateTop(boolean clockWise) {
+	private Cube rotateTop(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 0, 0, 0, 0, 2, 0, 0, 0, 1, clockWise);
-		r.set(this, 0, 1, 0, 1, 2, 0, 0, 0, 1, clockWise);
-		r.set(this, 0, 2, 0, 2, 2, 0, 0, 0, 1, clockWise);
+		r.set(this, 0, 0, 0, 0, 2, 0, 0, 0, 1, clockwise);
+		r.set(this, 0, 1, 0, 1, 2, 0, 0, 0, 1, clockwise);
+		r.set(this, 0, 2, 0, 2, 2, 0, 0, 0, 1, clockwise);
 
-		r.set(this, 1, 0, 0, 0, 1, 0, 0, 0, 1, clockWise);
-		r.set(this, 1, 2, 0, 2, 1, 0, 0, 0, 1, clockWise);
+		r.set(this, 1, 0, 0, 0, 1, 0, 0, 0, 1, clockwise);
+		r.set(this, 1, 2, 0, 2, 1, 0, 0, 0, 1, clockwise);
 
-		r.set(this, 2, 0, 0, 0, 0, 0, 0, 0, 1, clockWise);
-		r.set(this, 2, 1, 0, 1, 0, 0, 0, 0, 1, clockWise);
-		r.set(this, 2, 2, 0, 2, 0, 0, 0, 0, 1, clockWise);
+		r.set(this, 2, 0, 0, 0, 0, 0, 0, 0, 1, clockwise);
+		r.set(this, 2, 1, 0, 1, 0, 0, 0, 0, 1, clockwise);
+		r.set(this, 2, 2, 0, 2, 0, 0, 0, 0, 1, clockwise);
 		
 		return r;
 	}
-	private Cube rotateUnder(boolean clockWise) {
+	private Cube rotateUnder(boolean clockwise) {
 		Cube r = clone();
 		
-		r.set(this, 0, 0, 2, 2, 0, 2, 0, 0, -1, clockWise);
-		r.set(this, 1, 0, 2, 2, 1, 2, 0, 0, -1, clockWise);
-		r.set(this, 2, 0, 2, 2, 2, 2, 0, 0, -1, clockWise);
+		r.set(this, 0, 0, 2, 2, 0, 2, 0, 0, -1, clockwise);
+		r.set(this, 1, 0, 2, 2, 1, 2, 0, 0, -1, clockwise);
+		r.set(this, 2, 0, 2, 2, 2, 2, 0, 0, -1, clockwise);
 
-		r.set(this, 0, 1, 2, 1, 0, 2, 0, 0, -1, clockWise);
-		r.set(this, 2, 1, 2, 1, 2, 2, 0, 0, -1, clockWise);
+		r.set(this, 0, 1, 2, 1, 0, 2, 0, 0, -1, clockwise);
+		r.set(this, 2, 1, 2, 1, 2, 2, 0, 0, -1, clockwise);
 
-		r.set(this, 0, 2, 2, 0, 0, 2, 0, 0, -1, clockWise);
-		r.set(this, 1, 2, 2, 0, 1, 2, 0, 0, -1, clockWise);
-		r.set(this, 2, 2, 2, 0, 2, 2, 0, 0, -1, clockWise);
+		r.set(this, 0, 2, 2, 0, 0, 2, 0, 0, -1, clockwise);
+		r.set(this, 1, 2, 2, 0, 1, 2, 0, 0, -1, clockwise);
+		r.set(this, 2, 2, 2, 0, 2, 2, 0, 0, -1, clockwise);
 		
 		return r;
 	}
 	/**
-	 * @param clockWise False indicates that the src/dest and rotate
+	 * @param clockwise False indicates that the src/dest and rotate
 	 * 					are in the opposite "direction"
 	 */
 	private void set(
 			Cube src, int srcX, int srcY, int srcZ,
 			int destX, int destY, int destZ,
-			int xr, int yr, int zr, boolean clockWise) {
-		if (clockWise) {
+			int xr, int yr, int zr, boolean clockwise) {
+		if (clockwise) {
 			Piece srcPiece = src.getPiece(srcX, srcY, srcZ);
 			Piece rotatedPiece = srcPiece.rotate(xr, yr, zr);
 			pieces[destX][destY][destZ] = rotatedPiece;
@@ -311,6 +313,38 @@ public class Cube {
 	
 	public String getKeyString() {
 		return keyString;
+	}
+	
+	public int distance(Cube that) {
+		int distance = 0;
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				for (int z = 0; z < 3; z++) {
+					Piece thisP = this.pieces[x][y][z];
+					Piece thatP = that.pieces[x][y][z];
+					if (thisP == thatP) {
+						continue;
+					}
+					if (!thisP.equals(thatP)) {
+						// TODO this is probably all I need to change
+						distance++;
+					}
+				}
+			}
+		}
+		return distance;
+	}
+	
+	public Cube shuffle(int count) {
+		Cube c = this;
+		Random r = new Random();
+		Face[] faces = Face.values();
+		for (int i = 0; i < count; i++) {
+			int facePos = r.nextInt(faces.length);
+			boolean cw = r.nextBoolean();
+			c = c.rotate(faces[facePos], cw);
+		}
+		return c;
 	}
 	
 }

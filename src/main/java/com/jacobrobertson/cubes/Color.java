@@ -3,14 +3,15 @@ package com.jacobrobertson.cubes;
 public enum Color {
 
 	
+	Blank('-'),
+	Gray('*'),
+	
 	White('W'),
 	Green('G'),
 	Blue('B'),
 	Red('R'),
 	Yellow('Y'),
 	Orange('O'),
-	Blank(' '),
-	Gray('.'),
 	
 	;
 	

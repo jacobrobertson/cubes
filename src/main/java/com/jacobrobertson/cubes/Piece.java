@@ -5,7 +5,9 @@ import java.util.Map;
 
 public class Piece {
 
-	private static Map<Integer, Piece> flyweight = new HashMap<Integer, Piece>();
+	private static Map<Integer, Piece> uniqueByKey = new HashMap<Integer, Piece>();
+	private static Map<Integer, Piece> idealByColorKeyPart = new HashMap<Integer, Piece>();
+	private static Map<Integer, Piece> canonicalByRotatedColorKeyPart = new HashMap<Integer, Piece>();
 	
 	static {
 		init();
@@ -18,54 +20,49 @@ public class Piece {
 		}
 	}
 	private static void init(Color top, Color left, Color front, Color right, Color back, Color under) {
-		
-		Piece ideal = new Piece(top, left, front, right, back, under);
-		flyweight.put(ideal.rotationKey, ideal);
-		Piece px = null;
-		
-		for (int x = 0; x < 4; x++) {
-			if (px == null) {
-				px = ideal;
-			} else {
-				//           top,     left,     front,    right,  back,    under
-				px = init(px.left, px.under, px.front, px.top, px.back, px.right, ideal, x, 0, 0);
-			}
-			Piece py = null;
-			for (int y = 0; y < 4; y++) {
-				if (py == null) {
-					py = px;
-				} else {
-					//           top,      left,    front,    right,    back,   under
-					py = init(py.front, py.left, py.under, py.right, py.top, py.back, ideal, py.xRotations, y, 0);
-				}
-				Piece pz = null;
-				for (int z = 0; z < 4; z++) {
-					if (pz == null) {
-						pz = py;
-					} else {
-						//           top,    left,     front,    right,   back,    under
-						pz = init(pz.top, pz.front, pz.right, pz.back, pz.left, pz.under, ideal, pz.xRotations, pz.yRotations, z);
-					}
+		Piece ideal = init(top, left, front, right, back, under, null, 0, 0, 0);
+		Piece px = ideal;
+		for (int x = 1; x < 4; x++) {
+			//           top,     left,     front,    right,  back,    under
+			px = init(px.left, px.under, px.front, px.top, px.back, px.right, ideal, x, 0, 0);
+			Piece py = px;
+			for (int y = 1; y < 4; y++) {
+				//           top,      left,    front,    right,    back,   under
+				py = init(py.front, py.left, py.under, py.right, py.top, py.back, ideal, py.xRotations, y, 0);
+				Piece pz = py;
+				for (int z = 1; z < 4; z++) {
+					//           top,    left,     front,    right,   back,    under
+					pz = init(pz.top, pz.front, pz.right, pz.back, pz.left, pz.under, ideal, pz.xRotations, pz.yRotations, z);
 				}
 			}
 		}
 	}
 	private static Piece init(Color top, Color left, Color front, Color right, Color back, Color under,
-			Piece idealPiece, int xRotations, int yRotations, int zRotations) {
-		Piece p = new Piece(top, left, front, right, back, under, idealPiece, xRotations, yRotations, zRotations);
-//		System.out.println(p.key);
+			Piece idealPiece, 
+			int xRotations, int yRotations, int zRotations) {
 
-		// always put in by rotation key for lookup, but that key should only exist once
-		Piece existing = flyweight.put(p.rotationKey, p);
+		int rotatedColorKey = buildColorKey(true, top, left, front, right, back, under);
+		Piece p = new Piece(top, left, front, right, back, under, idealPiece, rotatedColorKey, xRotations, yRotations, zRotations);
+
+		if (p.toLookupKeyString().equals("GW--R-")) {
+			System.out.println("here");
+		}
+		
+		Piece existing = uniqueByKey.put(p.uniqueKey, p);
 		if (existing != null) {
 			throw new IllegalArgumentException("Bug in init logic");
 		}
 		
-		// check if it exists for true color key
-		existing = flyweight.get(p.colorKey);
-		if (existing == null) {
-			flyweight.put(p.colorKey, p);
+		if (xRotations == 0 && yRotations == 0 && zRotations == 0) {
+			idealByColorKeyPart.put(p.idealColorKey, p);
 		}
+		
+		// add to canonical if it is the first
+		if (!canonicalByRotatedColorKeyPart.containsKey(rotatedColorKey)) {
+			canonicalByRotatedColorKeyPart.put(rotatedColorKey, p);
+		}
+		
+		System.out.println(p.toString());
 		
 		return p;
 	}
@@ -77,44 +74,48 @@ public class Piece {
 	private Color back;
 	private Color under;
 
-	private Piece idealPiece;
-	
 	private int xRotations;
 	private int yRotations;
 	private int zRotations;
 	
-	private int colorKey;
-	private Integer rotationKey;
+	// used to construct a unique search key during rotation
+	// can also be used to lookup the "ideal" piece
+	private int idealColorKey; 
+	private Integer uniqueKey; // identifies this piece only
 	
-	private Piece(
-			Color top, Color left, Color front, Color right, Color back, Color under) {
-		this(top, left, front, right, back, under, null, 0, 0, 0);
-	}
+	// color key in the correct rotation
+	private Integer rotatedColorKey;
 	
 	private Piece(Color top, Color left, Color front, Color right, Color back, Color under, 
-			Piece idealPiece, int xRotations, int yRotations, int zRotations) {
+			Piece idealPiece, int rotatedColorKey, 
+			int xRotations, int yRotations, int zRotations) {
 		this.top = top;
 		this.left = left;
 		this.front = front;
 		this.right = right;
 		this.back = back;
 		this.under = under;
-		this.idealPiece = idealPiece;
 		this.xRotations = xRotations;
 		this.yRotations = yRotations;
 		this.zRotations = zRotations;
 		
-		rotationKey = getRotationKey(xRotations, yRotations, zRotations);
-		colorKey = getColorKey();
-		if (idealPiece != null) {
-			rotationKey += idealPiece.colorKey;
+		if (idealPiece == null) {
+			// we are configuring an ideal piece, so we need the color key
+			this.idealColorKey = buildColorKey(false, this);
 		} else {
-			rotationKey += colorKey;
-			this.idealPiece = this;
+			// the color key is not unique - it points to the ideal piece's key
+			this.idealColorKey = idealPiece.idealColorKey;
 		}
+		
+		int rotationKey = buildRotationKey(xRotations, yRotations, zRotations);
+		this.uniqueKey = rotationKey + idealColorKey;
+		this.rotatedColorKey = rotatedColorKey;
 	}
-	public static Iterable<Piece> pieces() {
-		return flyweight.values();
+	/**
+	 * @return the "ideal" pieces only
+	 */
+	public static Iterable<Piece> getIdealPieces() {
+		return idealByColorKeyPart.values();
 	}
 	/**
 	 * parse key in the order of top, left, front, right, back, under
@@ -122,23 +123,24 @@ public class Piece {
 	 */
 	public static Piece piece(String parseKey) {
 		Color[] colors = Color.parseColors(parseKey);
-		int colorKey = getColorKey(colors);
-		return flyweight.get(colorKey);
+		int colorKey = buildColorKey(true, colors);
+		return canonicalByRotatedColorKeyPart.get(colorKey);
 	}
-	private static int getRotationKey(int x, int y, int z) {
+	private static int buildRotationKey(int x, int y, int z) {
+		// XYZ123456
 		return
-			1000 * x + 
-			10000 * y + 
-			100000 * z;
+			100000000 * x + 
+			10000000 * y + 
+			1000000 * z;
 	}
-	private int getColorKey() {
-		return getColorKey(top, left, front, right, back, under);
+	private static int buildColorKey(boolean includeBlank, Piece p) {
+		return buildColorKey(includeBlank, p.top, p.left, p.front, p.right, p.back, p.under);
 	}
-	private static int getColorKey(Color... c) {
+	private static int buildColorKey(boolean includeBlank, Color... c) {
 		int key = 0;
 		int pos = 0;
 		for (int i = 0; i < c.length; i++) {
-			if (c[i] == Color.Blank) {
+			if (!includeBlank && c[i] == Color.Blank) {
 				continue;
 			}
 			key += getColorKeyPart(c[i], pos);
@@ -147,7 +149,7 @@ public class Piece {
 		return key;
 	}
 	private static int getColorKeyPart(Color c, int pos) {
-		int factor = (int) Math.pow(7, pos);
+		int factor = (int) Math.pow(10, pos);
 		return factor * c.ordinal();
 	}
 
@@ -155,11 +157,17 @@ public class Piece {
 	 * Only one arg can be non-zero and only valid values are -1, 0, 1
 	 */
 	public Piece rotate(int x, int y, int z) {
-		int findKey = idealPiece.colorKey + getRotationKey(
+		int rotationKey = buildRotationKey(
 				incr(x, xRotations), 
 				incr(y, yRotations), 
 				incr(z, zRotations));
-		return flyweight.get(findKey);
+		int uniqueSearchKey = rotationKey + idealColorKey;
+		Piece rotated = uniqueByKey.get(uniqueSearchKey);
+		if (rotated == null) {
+			throw new IllegalStateException("Bug in rotate: " + uniqueSearchKey);
+		}
+		Piece canonical = canonicalByRotatedColorKeyPart.get(rotated.rotatedColorKey);
+		return canonical;
 	}
 	private int incr(int n, int e) {
 		n = n + e;
@@ -195,10 +203,6 @@ public class Piece {
 		return front;
 	}
 
-	public Piece getIdealPiece() {
-		return idealPiece;
-	}
-
 	public int getXRotations() {
 		return xRotations;
 	}
@@ -209,6 +213,13 @@ public class Piece {
 
 	public int getZRotations() {
 		return zRotations;
+	}
+	
+	public int getIdealColorKey() {
+		return idealColorKey;
+	}
+	public Piece getIdealPiece() {
+		return idealByColorKeyPart.get(idealColorKey);
 	}
 	
 	public Color getColor(Face face) {
@@ -231,21 +242,36 @@ public class Piece {
 
 	@Override
 	public boolean equals(Object obj) {
-		Piece that = (Piece) obj;
-		return this.rotationKey.equals(that.rotationKey);
+		// we are using flyweight, so we never will have
+		// anything but exact matches
+		return this == obj; 
 	}
+
+	
 	
 	@Override
 	public String toString() {
-		return "Piece [top=" + top + ", left=" + left + ", front=" + front
-				+ ", right=" + right + ", back=" + back + ", under=" + under
-				+ ", xRotations=" + xRotations + ", yRotations=" + yRotations
-				+ ", zRotations=" + zRotations + "]";
+		return "Piece (" + toLookupKeyString() + ") [uniqueKey=" + uniqueKey + ", top=" + top.symbol + ", left="
+				+ left.symbol + ", front=" + front.symbol + ", right=" + right.symbol + ", back="
+				+ back.symbol + ", under=" + under.symbol + ", xyz(" + xRotations
+				+ "," + yRotations + "," + zRotations
+				+ "), idealColorKey=" + idealColorKey + ", rotatedColorKey="
+				+ rotatedColorKey + "]";
 	}
-	
-	public int getKey() {
-		return colorKey;
+	public int getUniqueKey() {
+		return uniqueKey;
 	}
-	
-	
+	/**
+	 * Represents the 6 sides uniquely without respect to the x/y/z rotation
+	 * used to get there.
+	 */
+	public Integer getRotatedColorKey() {
+		return rotatedColorKey;
+	}
+	public String toLookupKeyString() {
+		// top, left, front, right, back, under
+		return new String(new char[] {
+			top.symbol, left.symbol, front.symbol, right.symbol, back.symbol, under.symbol
+			});
+	}
 }
